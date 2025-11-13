@@ -13,20 +13,22 @@ RUN apt-get update && \
         wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Ghost-CLI globally
-RUN npm install -g ghost-cli@latest
+# Install yarn globally (Ghost uses yarn workspaces)
+RUN npm install -g yarn
 
-# Copy package files first (for caching)
-COPY package*.json ./
+# Copy package files
+COPY package*.json yarn.lock ./
+COPY .yarn ./.yarn
+COPY .yarnrc.yml ./
 
-# Install dependencies
-RUN npm install
+# Install all dependencies (monorepo)
+RUN yarn install
 
-# Copy rest of source code
+# Copy source code
 COPY . .
 
 # Expose Ghost port
 EXPOSE 2368
 
 # Development command
-CMD ["npm", "run", "dev"]
+CMD ["yarn", "dev"]
